@@ -14,6 +14,9 @@ const geistMono = Geist_Mono({
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full w-full overflow-x-hidden bg-black flex justify-center items-center h-full`}
       >

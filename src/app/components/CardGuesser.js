@@ -86,8 +86,8 @@ export default function CardGuesser(props) {
     }else
     {
         return (
-        <div className="flex h-full items-center flex-col justify-center">
-            <div className="h-75 w-5xl overflow-auto grid place-items-center [scrollbar-width:none]">
+        <div className="flex w-dvw items-center flex-col justify-center">
+            <div className="h-75 w-dvw overflow-auto grid place-items-center [scrollbar-width:none]">
                 {guesses?.map((element, index) => {
                     console.log(props.card.name)
                     //color, cost, type, rarity, subtype, wildcard (type based info)
@@ -205,7 +205,7 @@ export default function CardGuesser(props) {
             </div>
             <input
                 id="field"
-                className="bg-teal-50 h-2/5 h-15 p-3 text-3xl rounded-xl w-4xl"
+                className="bg-teal-50 h-2/5 h-15 p-3 xs:text-xl 2xl:text-2xl rounded-xl xs:w-2/3 w-1/2"
                 onKeyDown={e => { if (e.key === "Enter") handleChange(e.target.value)}}
                 placeholder="Guess Any Magic Card..."
             />
