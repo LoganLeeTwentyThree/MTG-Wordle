@@ -59,9 +59,11 @@ export default function CardGuesser(props) {
         return card.layout === "normal" ? card.image_uris : card.card_faces[0].image_uris
     }
 
+    
+
     return (
-    <div className="flex h-screen items-center flex-col justify-center">
-        <div className="h-3/5 w-full flex flex-col items-center justify-end">
+    <div className="flex h-full items-center flex-col justify-center">
+        <div className="h-75 w-5xl overflow-auto grid place-items-center [scrollbar-width:none]">
             {guesses?.map((element, index) => {
                 console.log(props.card.name)
                 //color, cost, type, rarity, subtype, wildcard (type based info)
@@ -70,31 +72,61 @@ export default function CardGuesser(props) {
                 const yellowBG = "bg-yellow-200"
                 const grayBG = "bg-gray-200"
 
-                //color
-                if (JSON.stringify(element.colors) === JSON.stringify(props.card.colors))
+                function compareArrayProperties(a, b)
                 {
-                    vals[0] = [greenBG, element.colors.length == 0 ? "Colorless" : element.colors]
-                }else
-                {
-                    let partialMatch = (element.colors.some(element => {
-                        if (props.card.colors.includes(element))
-                        {
-                            return true
-                        }
-                        return false
-                    }))
-
-                    if (partialMatch)
+                    if (JSON.stringify(a) === JSON.stringify(b))
                     {
-                        vals[0] = [yellowBG, element.colors.length == 0 ? "Colorless" : element.colors]
+                        return greenBG
                     }else
                     {
-                        vals[0] = [grayBG, element.colors.length == 0 ? "Colorless" : element.colors]
+                        let partialMatch = (a?.some(element => {
+                            if (b?.includes(element))
+                            {
+                                return true
+                            }
+                            return false
+                        }))
+
+                        if (partialMatch)
+                        {
+                            return yellowBG
+                        }else
+                        {
+                            return grayBG
+                        }
+                        
                     }
-                    
                 }
-                
-                //TODO: Create getColor(a, b, text) that takes in two parameters and gets the appropriate square color
+
+                function compareStringProperties(a, b)
+                {
+                    if ( a === b)
+                    {
+                        return greenBG
+                    }else
+                    {   
+                        // have to split in case that the guessed card has more types than the actual
+                        let partialMatch = a?.split(" ").some((e) => {
+                            if (b?.includes(e))
+                            {
+                                return true
+                            }
+                            return false
+                        })
+
+                        if (partialMatch)
+                        {
+                            return yellowBG
+                        }else
+                        {
+                            return grayBG
+                        }
+                        
+                    }
+                }
+
+                //color
+                vals[0] = [compareArrayProperties(element.colors, props.card.colors), element.colors.length == 0 ? "Colorless" : element.colors]
 
                 //cmc
                 vals[1] = [(JSON.stringify(element.cmc) === JSON.stringify(props.card.cmc) ? greenBG : grayBG), element.cmc, props.card.cmc - element.cmc] 
@@ -103,29 +135,7 @@ export default function CardGuesser(props) {
                 let etype = element.type_line.split("—")[0].trim()
                 let ptype = props.card.type_line.split("—")[0].trim()
 
-                if ( etype == ptype)
-                {
-                    vals[2] = [greenBG, etype]
-                }else
-                {   
-                    // have to split in case that the guessed card has more types than the actual
-                    let partialMatch = etype.split(" ").some((e) => {
-                        if (ptype.includes(e))
-                        {
-                            return true
-                        }
-                        return false
-                    })
-
-                    if (partialMatch)
-                    {
-                        vals[2] = [yellowBG, etype]
-                    }else
-                    {
-                        vals[2] = [grayBG, etype]
-                    }
-                    
-                }
+                vals[2] = [compareStringProperties(etype, ptype), etype]
 
                 //rarity
                 vals[3] = [(JSON.stringify(element.rarity) === JSON.stringify(props.card.rarity) ? greenBG : grayBG), element.rarity, compareRarity(element.rarity, props.card.rarity)]
@@ -134,28 +144,7 @@ export default function CardGuesser(props) {
                 let estype = element.type_line.split("—")[1]?.trim()
                 let pstype = props.card.type_line.split("—")[1]?.trim()
 
-                if ( estype == pstype)
-                {
-                    vals[4] = [greenBG, estype ? estype : "No Subtype"]
-                }else
-                {
-                    let partialMatch = estype?.split(" ").some((e) => {
-                        if (pstype?.includes(e))
-                        {
-                            return true
-                        }
-                        return false
-                    })
-
-                    if (partialMatch)
-                    {
-                        vals[4] = [yellowBG, estype ? estype : "No Subtype"]
-                    }else
-                    {
-                        vals[4] = [grayBG, estype ? estype : "No Subtype"]
-                    }
-                    
-                }
+                vals[4] = [compareStringProperties(estype, pstype), estype ? estype : "No Subtype"]
                 
                 if (vals[2][1].includes("Creature"))
                 {
@@ -163,29 +152,11 @@ export default function CardGuesser(props) {
                 }else if (vals[2][1].includes("Artifact") || vals[2][1].includes("Land"))
                 {
                     let text = element.produced_mana ? element.produced_mana : "None"
-                    if((JSON.stringify(element.produced_mana) === JSON.stringify(props.card.produced_mana)))
+                    if (element.produced_mana)
                     {
-                        vals[5] = [greenBG, "Produced Mana: " + text]
-                    }else
-                    {
-                        let partialMatch = (element.produced_mana.some(element => {
-                            
-                            if (props.card.produced_mana.includes(element))
-                            {
-                                
-                                return true
-                            }
-                            return false
-                        }))
-
-                        if (partialMatch)
-                        {
-                            vals[5] = [yellowBG, "Produced Mana: " + text]
-                        }else
-                        {
-                            vals[5] = [grayBG, "Produced Mana: " + text]
-                        }
+                        vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), "Produced Mana: " + text]
                     }
+                    
                 }
                 else
                 {
@@ -218,16 +189,16 @@ export default function CardGuesser(props) {
                         </div>
                     </div> 
                 )})}
-            <input
+        </div>
+        <input
                 id="field"
-                className="bg-teal-50 size-full h-15 p-3 text-3xl rounded-xl w-4xl"
+                className="bg-teal-50 h-2/5 h-15 p-3 text-3xl rounded-xl w-4xl"
                 value={inputValue}
                 onChange={e => handleChange(e.target.value)}
                 placeholder="Guess..."
             />
-        </div>
         
-        <div className="flex flex-wrap flex-row w-screen justify-center h-2/5">
+        <div className="flex flex-wrap flex-row w-screen justify-center h-1/5">
         
             {currentSearchResult?.map((card, index) => 
             (
