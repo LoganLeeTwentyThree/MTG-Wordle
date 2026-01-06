@@ -54,9 +54,9 @@ export default function CardGuesser(props) {
 
     }
 
-    function getCardImageURL(card)
+    function getCardImageURLArray(card)
     {
-        return card.layout === "normal" ? card.image_uris.normal : card.card_faces[0].image_uris.normal
+        return card.layout === "normal" ? card.image_uris : card.card_faces[0].image_uris
     }
 
     return (
@@ -66,38 +66,141 @@ export default function CardGuesser(props) {
                 console.log(props.card.name)
                 //color, cost, type, rarity, subtype, wildcard (type based info)
                 let vals = [false, false, false, false, false, false]
+                const greenBG = "bg-green-200"
+                const yellowBG = "bg-yellow-200"
+                const grayBG = "bg-gray-200"
 
-                vals[0] = [(JSON.stringify(element.colors) === JSON.stringify(props.card.colors)), element.colors.length == 0 ? "Colorless" : element.colors]
-                vals[1] = [(JSON.stringify(element.cmc) === JSON.stringify(props.card.cmc)), element.cmc, props.card.cmc - element.cmc] 
-                vals[2] = [(element.type_line.split("—")[0].trim() == props.card.type_line.split("—")[0].trim()), element.type_line.split("—")[0]] 
-                vals[3] = [(JSON.stringify(element.rarity) === JSON.stringify(props.card.rarity)), element.rarity, compareRarity(element.rarity, props.card.rarity)]
-                vals[4] = [(element.type_line.split("—")[1] == props.card.type_line.split("—")[1]), element.type_line.split("—")[1] ? element.type_line.split("—")[1] : "No Subtype" ] 
-                
-                if (vals[2][0]) //correct type guessed, activate wildcard
+                //color
+                if (JSON.stringify(element.colors) === JSON.stringify(props.card.colors))
                 {
-                    if (vals[2][1].includes("Land"))
-                    {
-                        vals[5] = [(JSON.stringify(element.produced_mana) === JSON.stringify(props.card.produced_mana)), "Produced Mana: " + element.produced_mana]
-                    }else if (vals[2][1].includes("Creature"))
-                    {
-                        vals[5] = [(element.power + "\\" + element.toughness === props.card.power + "\\" + props.card.toughness), (element.power + "\\" + element.toughness)]
-                    }else
-                    {
-                        vals[5] = [false, "No Wildcard"]
-                    }
+                    vals[0] = [greenBG, element.colors.length == 0 ? "Colorless" : element.colors]
                 }else
                 {
-                    vals[5] = [false, "Incorrect Type"]
+                    let partialMatch = (element.colors.some(element => {
+                        if (props.card.colors.includes(element))
+                        {
+                            return true
+                        }
+                        return false
+                    }))
+
+                    if (partialMatch)
+                    {
+                        vals[0] = [yellowBG, element.colors.length == 0 ? "Colorless" : element.colors]
+                    }else
+                    {
+                        vals[0] = [grayBG, element.colors.length == 0 ? "Colorless" : element.colors]
+                    }
+                    
                 }
+                
+                //TODO: Create getColor(a, b, text) that takes in two parameters and gets the appropriate square color
+
+                //cmc
+                vals[1] = [(JSON.stringify(element.cmc) === JSON.stringify(props.card.cmc) ? greenBG : grayBG), element.cmc, props.card.cmc - element.cmc] 
+
+                //type
+                let etype = element.type_line.split("—")[0].trim()
+                let ptype = props.card.type_line.split("—")[0].trim()
+
+                if ( etype == ptype)
+                {
+                    vals[2] = [greenBG, etype]
+                }else
+                {   
+                    // have to split in case that the guessed card has more types than the actual
+                    let partialMatch = etype.split(" ").some((e) => {
+                        if (ptype.includes(e))
+                        {
+                            return true
+                        }
+                        return false
+                    })
+
+                    if (partialMatch)
+                    {
+                        vals[2] = [yellowBG, etype]
+                    }else
+                    {
+                        vals[2] = [grayBG, etype]
+                    }
+                    
+                }
+
+                //rarity
+                vals[3] = [(JSON.stringify(element.rarity) === JSON.stringify(props.card.rarity) ? greenBG : grayBG), element.rarity, compareRarity(element.rarity, props.card.rarity)]
+                
+                //subtype
+                let estype = element.type_line.split("—")[1]?.trim()
+                let pstype = props.card.type_line.split("—")[1]?.trim()
+
+                if ( estype == pstype)
+                {
+                    vals[4] = [greenBG, estype ? estype : "No Subtype"]
+                }else
+                {
+                    let partialMatch = estype?.split(" ").some((e) => {
+                        if (pstype?.includes(e))
+                        {
+                            return true
+                        }
+                        return false
+                    })
+
+                    if (partialMatch)
+                    {
+                        vals[4] = [yellowBG, estype ? estype : "No Subtype"]
+                    }else
+                    {
+                        vals[4] = [grayBG, estype ? estype : "No Subtype"]
+                    }
+                    
+                }
+                
+                if (vals[2][1].includes("Creature"))
+                {
+                    vals[5] = [(element.power + "\\" + element.toughness === props.card.power + "\\" + props.card.toughness) ? greenBG : grayBG, (element.power + "\\" + element.toughness)]
+                }else if (vals[2][1].includes("Artifact") || vals[2][1].includes("Land"))
+                {
+                    let text = element.produced_mana ? element.produced_mana : "None"
+                    if((JSON.stringify(element.produced_mana) === JSON.stringify(props.card.produced_mana)))
+                    {
+                        vals[5] = [greenBG, "Produced Mana: " + text]
+                    }else
+                    {
+                        let partialMatch = (element.produced_mana.some(element => {
+                            
+                            if (props.card.produced_mana.includes(element))
+                            {
+                                
+                                return true
+                            }
+                            return false
+                        }))
+
+                        if (partialMatch)
+                        {
+                            vals[5] = [yellowBG, "Produced Mana: " + text]
+                        }else
+                        {
+                            vals[5] = [grayBG, "Produced Mana: " + text]
+                        }
+                    }
+                }
+                else
+                {
+                    vals[5] = [grayBG, "No Wildcard for this type"]
+                }
+                
                 
                 
                 
                 
                 return ( 
                     <div className="flex flex-row m-2 h-30" key={index}> 
-                        <img src={element.image_uris.small} className="hover:scale-300"></img>
+                        <img src={getCardImageURLArray(element).small} className="hover:scale-300"></img>
                         {vals.map((e, i) => (
-                            <WordleSquare difference={e.length > 2 ? e[2] : 0} key={i} correct={e[0]} text={e[1]}/>
+                            <WordleSquare difference={e.length > 2 ? e[2] : 0} key={i} bg={e[0]} text={e[1]}/>
                         ))}
                         <div>
                             {
@@ -108,7 +211,7 @@ export default function CardGuesser(props) {
                             }
                             {
                                 guesses[guesses.length - 1].name == props.card.name && <img
-                                    src={getCardImageURL(props.card)}
+                                    src={getCardImageURLArray(props.card).normal}
                                     className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 max-w-none select-none"
                                 ></img>
                             }
@@ -128,7 +231,7 @@ export default function CardGuesser(props) {
         
             {currentSearchResult?.map((card, index) => 
             (
-                <HoverPreview onClick={(e)=>setGuesses(prev => [...prev, card])} key={index} imgSrc={getCardImageURL(card)}>
+                <HoverPreview onClick={(e)=>setGuesses(prev => [...prev, card])} key={index} imgSrc={getCardImageURLArray(card).normal}>
                 </HoverPreview>
             ))}
         </div>
