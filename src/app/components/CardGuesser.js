@@ -55,9 +55,18 @@ export default function CardGuesser(props) {
 
     }
 
-    function getCardImageURLArray(card)
+    //dfcs are evil...
+    function getCardProperty(card, property)
     {
-        return card.layout === "normal" ? card.image_uris : card.card_faces[0].image_uris
+        
+        if (card.layout === "normal" || property === "cmc")//cmc not associated with face for some reason 
+        {
+            return card[property]
+        }else
+        {
+            return card.card_faces[0][property]
+        }
+     
     }
 
     
@@ -70,7 +79,7 @@ export default function CardGuesser(props) {
                 width={window.width}
                 height={window.height}
                 />
-                <Result src={getCardImageURLArray(props.card).normal} />
+                <Result tries={guesses.length} src={getCardProperty(props.card, "image_uris").normal} />
             </div>
             
         )
@@ -141,10 +150,13 @@ export default function CardGuesser(props) {
                     }
 
                     //color
-                    vals[0] = [compareArrayProperties(element.colors, props.card.colors), element.colors.length == 0 ? "Colorless" : element.colors]
+                    let ecolor = getCardProperty(element, "colors")
+                    vals[0] = [compareArrayProperties(ecolor, getCardProperty(props.card, "colors")), ecolor.length == 0 ? "Colorless" : ecolor]
 
                     //cmc
-                    vals[1] = [(JSON.stringify(element.cmc) === JSON.stringify(props.card.cmc) ? greenBG : grayBG), element.cmc, props.card.cmc - element.cmc] 
+                    let ecmc = getCardProperty(element, "cmc")
+                    let pcmc = getCardProperty(props.card, "cmc")
+                    vals[1] = [(JSON.stringify(ecmc) === JSON.stringify(pcmc) ? greenBG : grayBG), ecmc, pcmc - ecmc] 
 
                     //type
                     let etype = element.type_line.split("—")[0].trim()
@@ -184,7 +196,7 @@ export default function CardGuesser(props) {
                     
                     return ( 
                         <div className="flex flex-row m-2 h-30" key={index}> 
-                            <img src={getCardImageURLArray(element).small} className="hover:scale-300"></img>
+                            <img src={getCardProperty(element, "image_uris").small} className="hover:scale-300"></img>
                             {vals.map((e, i) => (
                                 <WordleSquare difference={e.length > 2 ? e[2] : 0} key={i} bg={e[0]} text={e[1]}/>
                             ))}
@@ -192,18 +204,17 @@ export default function CardGuesser(props) {
                     )})}
             </div>
             <input
-                    id="field"
-                    className="bg-teal-50 h-2/5 h-15 p-3 text-3xl rounded-xl w-4xl"
-                    value={inputValue}
-                    onChange={e => handleChange(e.target.value)}
-                    placeholder="Guess Any Magic Card..."
-                />
+                id="field"
+                className="bg-teal-50 h-2/5 h-15 p-3 text-3xl rounded-xl w-4xl"
+                onKeyDown={e => { if (e.key === "Enter") handleChange(e.target.value)}}
+                placeholder="Guess Any Magic Card..."
+            />
             
             <div className="flex flex-wrap flex-row w-screen justify-center h-1/5">
             
                 {currentSearchResult?.map((card, index) => 
                 (
-                    <HoverPreview onClick={(e)=>setGuesses(prev => [...prev, card])} key={index} imgSrc={getCardImageURLArray(card).normal}>
+                    <HoverPreview onClick={(e)=>setGuesses(prev => [...prev, card])} key={index} imgSrc={getCardProperty(card, "image_uris").normal}>
                     </HoverPreview>
                 ))}
             </div>
