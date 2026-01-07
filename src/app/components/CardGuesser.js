@@ -1,8 +1,7 @@
 "use client"
-import { useState, useMemo, useEffect } from "react"
+import { useState, useRef, useEffect } from "react"
 import WordleSquare from "./WordleSquare"
 import Confetti from 'react-confetti'
-import debounce from "debounce"
 import HoverPreview from "./Option"
 import Result from "./Result"
 
@@ -10,38 +9,42 @@ export default function CardGuesser(props) {
     const [guesses, setGuesses] = useState([])
     const [currentSearchResult, setCurrentSearchResult] = useState(null)
     const [inputValue, setInputValue] = useState("")
+    const listRef = useRef(null)
+    const isFirstRender = useRef(true);
 
     
-    const debouncedFetch = useMemo(
-    () =>
-        debounce((value) => {
-        if (value.length == 0) 
+    useEffect(() =>{
+        if (isFirstRender.current) {
+            isFirstRender.current = false; 
+            return; 
+        }
+        if (inputValue.length == 0) 
         {
-            setInputValue(value)
             setCurrentSearchResult(null)
             return
         }
+
+
         fetch(
             "https://api.scryfall.com/cards/search?q=" +
-            encodeURIComponent(value + " game:paper" + " sort:edhrec")
+            encodeURIComponent(inputValue + " game:paper" + " sort:edhrec")
         )
             .then(res => res.json())
-            .then(json => setCurrentSearchResult(json.data.slice(0,6)))
-            .then(console.log(currentSearchResult))
+            .then(json => {
+                let result = json.data.filter((element) => {
+                    //filter out already guessed cards
+                   return guesses.every((e) => !(getCardProperty(e, "name") === getCardProperty(element, "name")))
+                })
+                setCurrentSearchResult(result.slice(0,6))
+            })
             .catch(console.error)
-        }, 1000),
-    []
+      
+        },[inputValue]
     )
 
-    function handleChange(value) {
-        setInputValue(value)
-        debouncedFetch(value)
-    }
-
-    useEffect(() => {
-        return () => debouncedFetch.clear()
-    }, [debouncedFetch])
-
+    useEffect(()=> {
+        listRef?.current?.lastElementChild?.scrollIntoView()
+    }, [currentSearchResult])
 
     function compareRarity(a, b)
     {
@@ -58,36 +61,42 @@ export default function CardGuesser(props) {
     //dfcs are evil...
     function getCardProperty(card, property)
     {
-        
-        if (card.layout === "normal" || property === "cmc")//cmc not associated with face for some reason 
+        if(Object.hasOwn(card, property))
         {
             return card[property]
         }else
         {
-            return card.card_faces[0][property]
+            if (Object.hasOwn(card, "card_faces"))
+            {
+                return card.card_faces[0][property]
+            }
         }
      
     }
 
     
     //if solved
-    if (guesses[guesses.length - 1]?.name == props.card.name)
+    if (guesses[guesses.length - 1]?.name == props.card?.name)
     {
         return ( 
-            <div className="flex h-full items-center flex-col justify-center">
+            <div className="flex h-dvh items-center flex-col justify-center">
                 <Confetti
                 width={window.width}
                 height={window.height}
                 />
-                <Result tries={guesses.length} src={getCardProperty(props.card, "image_uris").normal} />
+                <Result src={getCardProperty(props.card, "image_uris").normal} >
+                    {guesses.map((e, i)=> (
+                        <div className="text-center bg-gray-200 m-2 w-50 rounded-xl" key={i}>{e.name}</div>
+                    ))}
+                </Result>
             </div>
             
         )
     }else
     {
         return (
-        <div className="flex w-dvw items-center flex-col justify-center">
-            <div className="h-75 w-dvw overflow-auto grid place-items-center [scrollbar-width:none]">
+        <div className="flex items-center flex-col justify-center">
+            <div ref={listRef} className="h-130 w-screen overflow-auto grid place-items-center [scrollbar-width:none]">
                 {guesses?.map((element, index) => {
                     console.log(props.card.name)
                     //color, cost, type, rarity, subtype, wildcard (type based info)
@@ -179,7 +188,7 @@ export default function CardGuesser(props) {
                     }else if (vals[2][1].includes("Artifact") || vals[2][1].includes("Land"))
                     {
                         let text = element.produced_mana ? element.produced_mana : "None"
-                        if (element.produced_mana)
+                        if (Object.hasOwn(element, "produced_mana"))
                         {
                             vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), "Produced Mana: " + text]
                         }
@@ -206,17 +215,24 @@ export default function CardGuesser(props) {
             <input
                 id="field"
                 className="bg-teal-50 h-2/5 h-15 p-3 xs:text-xl 2xl:text-2xl rounded-xl xs:w-2/3 w-1/2"
-                onKeyDown={e => { if (e.key === "Enter") handleChange(e.target.value)}}
+                onKeyDown={e => { if (e.key === "Enter") setInputValue(e.target.value)}}
                 placeholder="Guess Any Magic Card..."
             />
             
             <div className="flex flex-wrap flex-row w-screen justify-center h-1/5">
             
-                {currentSearchResult?.map((card, index) => 
-                (
-                    <HoverPreview onClick={(e)=>setGuesses(prev => [...prev, card])} key={index} imgSrc={getCardProperty(card, "image_uris").normal}>
-                    </HoverPreview>
-                ))}
+                {inputValue.length > 0 && currentSearchResult?.length > 0 && currentSearchResult?.map((card, index) => 
+                    (
+                        <HoverPreview onClick={(e)=> {
+                                setGuesses(prev => [...prev, card])
+                                setCurrentSearchResult([])
+                                setInputValue("")
+                            }} 
+                            key={index} 
+                            imgSrc={getCardProperty(card, "image_uris").normal}>
+                        </HoverPreview>
+                    ))
+                } 
             </div>
         </div>
         )
