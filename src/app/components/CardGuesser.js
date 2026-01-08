@@ -4,12 +4,14 @@ import WordleSquare from "./WordleSquare"
 import Confetti from 'react-confetti'
 import HoverPreview from "./Option"
 import Result from "./Result"
+import CountdownTimer from "./Timer"
 
 export default function CardGuesser(props) {
     const [guesses, setGuesses] = useState([])
     const [currentSearchResult, setCurrentSearchResult] = useState(null)
     const [inputValue, setInputValue] = useState("")
     const [gaveUp, setGaveUp] = useState(false)
+    const [difficulty, setDifficulty] = useState("")
     const listRef = useRef(null)
     const isFirstRender = useRef(true);
 
@@ -75,10 +77,20 @@ export default function CardGuesser(props) {
      
     }
 
-    
-    //if solved
-    if (guesses[guesses.length - 1]?.name == props.card?.name)
+    //difficulty select
+    if(difficulty.length == 0)
     {
+        return (<div className="absolute flex top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white h-fit p-5 w-70 rounded-xl items-center flex-col justify-center">
+            <div className="text-4xl">MTG Wordle</div>
+            <div className="text-center">Try to guess the highly played commander card.</div>
+            <div className="">Select Difficulty!</div>
+            <button onClick={()=>setDifficulty("Normal")} className="bg-gray-300 hover:scale-105 rounded-xl p-3 m-2 w-50">Normal: No Timer</button>
+            <button onClick={()=>setDifficulty("Hard")} className="bg-gray-300 hover:scale-105 rounded-xl p-3 m-2 w-50">Hard: 5 Minute Timer</button>
+            <button onClick={()=>setDifficulty("SuperHard")} className="bg-gray-300 hover:scale-105 rounded-xl p-3 m-2 w-50">Super Hard: 1 Minute Timer</button>
+        </div>)
+    }
+    else if (guesses[guesses.length - 1]?.name == props.card?.name)
+    {//if solved
         return ( 
             <div className="flex h-dvh items-center flex-col justify-center">
                 <Confetti
@@ -86,7 +98,7 @@ export default function CardGuesser(props) {
                 height={window.height}
                 />
                 <Result src={getCardProperty(props.card, "image_uris").normal} >
-                    <div>You guessed the card in {guesses.length} attempt{guesses.length != 1 ? "s" : ""}!</div>
+                    <div className="text-center">You guessed the card in {guesses.length} attempt{guesses.length != 1 ? "s" : ""}!</div>
                     {guesses.map((e, i)=> (
                         <div className="text-center bg-gray-200 m-2 w-50 rounded-xl" key={i}>{e.name}</div>
                     ))}
@@ -112,6 +124,8 @@ export default function CardGuesser(props) {
     {//game 
         return (
         <div className="flex items-center flex-col justify-center">
+            {difficulty === "Hard" && <CountdownTimer style="bg-gray-300 text-center hover:scale-105 rounded-xl p-3 m-2 w-50" initialSeconds={300} onComplete={(secs) => setGaveUp(true)}/>}
+            {difficulty === "SuperHard" && <CountdownTimer style="bg-gray-300 text-center hover:scale-105 rounded-xl p-3 m-2 w-50" initialSeconds={60} onComplete={(secs) => setGaveUp(true)}/>}
             <div ref={listRef} className="h-130 w-screen overflow-auto grid place-items-center [scrollbar-width:none]">
                 {guesses?.map((element, index) => {
                     //color, cost, type, rarity, subtype, wildcard (type based info)
