@@ -5,3 +5,65 @@
   --breakpoint-2xl: 100rem;
   --breakpoint-3xl: 120rem;
 }
+
+@font-face {
+  font-family: "Mana";
+  src: url("./mana.ttf?v=1.18.0") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+.ms {
+  display: inline-block;
+  font: normal normal normal 14px Mana;
+  font-size: inherit;
+  line-height: 1em;
+  text-rendering: auto;
+  transform: translate(0, 0);
+  text-transform: none;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --ms-mana-b: #a7999e;
+  --ms-mana-c: #d0c6bb;
+  --ms-mana-g: #9fcba6;
+  --ms-mana-r: #f19b79;
+  --ms-mana-u: #bcdaf7;
+  --ms-mana-w: #fdfbce;
+}
+
+.ms-w::before {
+  content: "\e600";
+  background-color: #fdfbce;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-u::before {
+  content: "\e601";
+  background-color: #bcdaf7;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-b::before {
+  content: "\e602";
+  background-color: #a7999e;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-r::before {
+  content: "\e603";
+  background-color: #f19b79;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-g::before {
+  content: "\e604";
+  background-color: #9fcba6;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-c::before {
+  content: "\e904";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}

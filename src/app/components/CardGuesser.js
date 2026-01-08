@@ -6,6 +6,7 @@ import HoverPreview from "./Option"
 import Result from "./Result"
 import CountdownTimer from "./Timer"
 
+
 export default function CardGuesser(props) {
     const [guesses, setGuesses] = useState([])
     const [currentSearchResult, setCurrentSearchResult] = useState(null)
@@ -14,6 +15,10 @@ export default function CardGuesser(props) {
     const [difficulty, setDifficulty] = useState("")
     const listRef = useRef(null)
     const isFirstRender = useRef(true);
+
+    
+ 
+    
 
     
     useEffect(() =>{
@@ -187,9 +192,20 @@ export default function CardGuesser(props) {
                         }
                     }
 
+                    function getManaSymbols(arr)
+                    {
+                        let result = arr.map((element, index) => {
+                            return <i key={index} className={"ms ms-" + element.toLowerCase()}></i>
+                        });
+
+                        
+                        return result
+                    }
+
                     //color
                     let ecolor = getCardProperty(element, "colors")
-                    vals[0] = [compareArrayProperties(ecolor, getCardProperty(props.card, "colors")), ecolor.length == 0 ? "Colorless" : ecolor]
+                    let colorText = ecolor.length == 0 ? "Colorless" : getManaSymbols(ecolor)
+                    vals[0] = [compareArrayProperties(ecolor, getCardProperty(props.card, "colors")), <div className="flex flex-row">{colorText}</div> ]
 
                     //cmc
                     let ecmc = getCardProperty(element, "cmc")
@@ -218,7 +234,8 @@ export default function CardGuesser(props) {
                     {
                         if (Object.hasOwn(element, "produced_mana"))
                         {
-                            vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), "Produced Mana: " + element.produced_mana]
+                            let manaText = getManaSymbols(element.produced_mana)
+                            vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), <div className="flex flex-col items-center">Produces:<div className="flex flex-row">{manaText}</div></div>]
                         }else
                         {
                             vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), "Does not produce mana"]
@@ -238,7 +255,7 @@ export default function CardGuesser(props) {
                         <div className="flex flex-row m-2 h-30" key={index}> 
                             <img src={getCardProperty(element, "image_uris").small} className="hover:scale-300"></img>
                             {vals.map((e, i) => (
-                                <WordleSquare difference={e.length > 2 ? e[2] : 0} key={i} bg={e[0]} text={e[1]}/>
+                                <WordleSquare difference={e.length > 2 ? e[2] : 0} key={i} bg={e[0]}>{e[1]}</WordleSquare>
                             ))}
                         </div> 
                     )})}
