@@ -86,7 +86,7 @@ export default function CardGuesser(props) {
                 height={window.height}
                 />
                 <Result src={getCardProperty(props.card, "image_uris").normal} >
-                    <div>You guessed the card in {guesses.length} tries!</div>
+                    <div>You guessed the card in {guesses.length} attempt{guesses.length != 1 ? "s" : ""}!</div>
                     {guesses.map((e, i)=> (
                         <div className="text-center bg-gray-200 m-2 w-50 rounded-xl" key={i}>{e.name}</div>
                     ))}
@@ -99,7 +99,7 @@ export default function CardGuesser(props) {
         return ( 
             <div className="flex h-dvh items-center flex-col justify-center">
                 <Result src={getCardProperty(props.card, "image_uris").normal} >
-                    <div>You gave up in {guesses.length} tries...</div>
+                    <div>You gave up in {guesses.length} attempt{guesses.length != 1 ? "s" : ""}...</div>
                     {guesses.map((e, i)=> (
                         <div className="text-center bg-gray-200 m-2 w-50 rounded-xl" key={i}>{e.name}</div>
                     ))}
@@ -109,7 +109,7 @@ export default function CardGuesser(props) {
         )
     }
     else
-    {
+    {//game 
         return (
         <div className="flex items-center flex-col justify-center">
             <div ref={listRef} className="h-130 w-screen overflow-auto grid place-items-center [scrollbar-width:none]">
