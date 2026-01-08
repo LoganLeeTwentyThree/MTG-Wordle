@@ -192,25 +192,35 @@ export default function CardGuesser(props) {
                         }
                     }
 
-                    function getManaSymbols(arr)
+                    function getManaSymbolsFromArr(arr)
                     {
+
+                        if (arr.length == 0) {
+                            return <i className={"ms ms-c"}></i>
+                        }
                         let result = arr.map((element, index) => {
                             return <i key={index} className={"ms ms-" + element.toLowerCase()}></i>
                         });
 
                         
-                        return result
+                        return <div className="flex flex-row">{result}</div>
                     }
 
-                    //color
-                    let ecolor = getCardProperty(element, "colors")
-                    let colorText = ecolor.length == 0 ? "Colorless" : getManaSymbols(ecolor)
-                    vals[0] = [compareArrayProperties(ecolor, getCardProperty(props.card, "colors")), <div className="flex flex-row">{colorText}</div> ]
+                    function getManaSymbolsFromString(input)
+                    {
+                        return getManaSymbolsFromArr(input.replace(/}/g, "").split("{"))
+                    }
 
-                    //cmc
-                    let ecmc = getCardProperty(element, "cmc")
-                    let pcmc = getCardProperty(props.card, "cmc")
-                    vals[1] = [(JSON.stringify(ecmc) === JSON.stringify(pcmc) ? greenBG : grayBG), ecmc, pcmc - ecmc] 
+
+
+                    //color identity
+                    let ecolor = getCardProperty(element, "color_identity")
+                    vals[0] = [compareArrayProperties(ecolor, getCardProperty(props.card, "color_identity")), (getManaSymbolsFromArr(ecolor)) ]
+
+                    //mana cost
+                    let ecmc = getCardProperty(element, "mana_cost")
+                    let pcmc = getCardProperty(props.card, "mana_cost")
+                    vals[1] = [compareStringProperties(ecmc, pcmc), getManaSymbolsFromString(ecmc), getCardProperty(props.card, "cmc") - getCardProperty(element, "cmc")] 
 
                     //type
                     let etype = element.type_line.split("—")[0].trim()
@@ -229,13 +239,15 @@ export default function CardGuesser(props) {
                     
                     if (vals[2][1].includes("Creature"))
                     {
-                        vals[5] = [(element.power + "/" + element.toughness === props.card.power + "/" + props.card.toughness) ? greenBG : grayBG, (element.power + "/" + element.toughness)]
+                        let estats = getCardProperty(element, "power") + "/" + getCardProperty(element, "toughness")
+                        let pstats = getCardProperty(props.card, "power") + "/" + getCardProperty(props.card, "toughness")
+                        vals[5] = [( estats === pstats) ? greenBG : grayBG, estats]
                     }else if (vals[2][1].includes("Artifact") || vals[2][1].includes("Land"))
                     {
                         if (Object.hasOwn(element, "produced_mana"))
                         {
-                            let manaText = getManaSymbols(element.produced_mana)
-                            vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), <div className="flex flex-col items-center">Produces:<div className="flex flex-row">{manaText}</div></div>]
+                            let manaText = getManaSymbolsFromArr(element.produced_mana)
+                            vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), <div className="flex flex-col items-center">Produces:{manaText}</div>]
                         }else
                         {
                             vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), "Does not produce mana"]

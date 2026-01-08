@@ -67,3 +67,109 @@
   border-radius: 50%;
   padding: 2px;
 }
+
+.ms-0::before {
+  content: "\e605";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-1::before {
+  content: "\e606";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-2 {
+  margin-left: inherit !important;
+}
+.ms-2::before {
+  content: "\e607";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-3::before {
+  content: "\e608";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-4::before {
+  content: "\e609";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-5::before {
+  content: "\e60a";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-6::before {
+  content: "\e60b";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-7::before {
+  content: "\e60c";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-8::before {
+  content: "\e60d";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-9::before {
+  content: "\e60e";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-10::before {
+  content: "\e60f";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-11::before {
+  content: "\e610";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-12::before {
+  content: "\e611";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-13::before {
+  content: "\e612";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-14::before {
+  content: "\e613";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-15::before {
+  content: "\e614";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
+.ms-16::before {
+  content: "\e62a";
+  background-color: #d0c6bb;
+  border-radius: 50%;
+  padding: 2px;
+}
