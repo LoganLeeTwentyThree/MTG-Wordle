@@ -9,6 +9,7 @@ export default function CardGuesser(props) {
     const [guesses, setGuesses] = useState([])
     const [currentSearchResult, setCurrentSearchResult] = useState(null)
     const [inputValue, setInputValue] = useState("")
+    const [gaveUp, setGaveUp] = useState(false)
     const listRef = useRef(null)
     const isFirstRender = useRef(true);
 
@@ -85,6 +86,7 @@ export default function CardGuesser(props) {
                 height={window.height}
                 />
                 <Result src={getCardProperty(props.card, "image_uris").normal} >
+                    <div>You guessed the card in {guesses.length} tries!</div>
                     {guesses.map((e, i)=> (
                         <div className="text-center bg-gray-200 m-2 w-50 rounded-xl" key={i}>{e.name}</div>
                     ))}
@@ -92,13 +94,26 @@ export default function CardGuesser(props) {
             </div>
             
         )
-    }else
+    }else if (gaveUp)
+    {
+        return ( 
+            <div className="flex h-dvh items-center flex-col justify-center">
+                <Result src={getCardProperty(props.card, "image_uris").normal} >
+                    <div>You gave up in {guesses.length} tries...</div>
+                    {guesses.map((e, i)=> (
+                        <div className="text-center bg-gray-200 m-2 w-50 rounded-xl" key={i}>{e.name}</div>
+                    ))}
+                </Result>
+            </div>
+            
+        )
+    }
+    else
     {
         return (
         <div className="flex items-center flex-col justify-center">
             <div ref={listRef} className="h-130 w-screen overflow-auto grid place-items-center [scrollbar-width:none]">
                 {guesses?.map((element, index) => {
-                    console.log(props.card.name)
                     //color, cost, type, rarity, subtype, wildcard (type based info)
                     let vals = [false, false, false, false, false, false]
                     const greenBG = "bg-green-200"
@@ -187,10 +202,12 @@ export default function CardGuesser(props) {
                         vals[5] = [(element.power + "/" + element.toughness === props.card.power + "/" + props.card.toughness) ? greenBG : grayBG, (element.power + "/" + element.toughness)]
                     }else if (vals[2][1].includes("Artifact") || vals[2][1].includes("Land"))
                     {
-                        let text = element.produced_mana ? element.produced_mana : "None"
                         if (Object.hasOwn(element, "produced_mana"))
                         {
-                            vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), "Produced Mana: " + text]
+                            vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), "Produced Mana: " + element.produced_mana]
+                        }else
+                        {
+                            vals[5] = [compareArrayProperties(element.produced_mana, props.card.produced_mana), "Does not produce mana"]
                         }
                         
                     }
@@ -234,6 +251,8 @@ export default function CardGuesser(props) {
                     ))
                 } 
             </div>
+
+            <button onClick={() => setGaveUp(true)} className="fixed xs:bottom-5 xs:right-5 bottom-10 right-10 bg-white p-2 rounded-xl hover:scale-105 hover:bg-gray-400">Give Up :(</button>
         </div>
         )
     }
