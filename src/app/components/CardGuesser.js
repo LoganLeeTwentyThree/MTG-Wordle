@@ -231,9 +231,20 @@ export default function CardGuesser(props) {
                     //rarity
                     vals[3] = [(JSON.stringify(element.rarity) === JSON.stringify(props.card.rarity) ? greenBG : grayBG), element.rarity, compareRarity(element.rarity, props.card.rarity)]
                     
+                    let estype
+                    let pstype
                     //subtype
-                    let estype = element.type_line.split("—")[1]?.trim()
-                    let pstype = props.card.type_line.split("—")[1]?.trim()
+                    if (element.type_line.includes("//"))
+                    {
+                        //mdfcs
+                        estype = element.type_line.split("//")[0]?.split("—")[1].trim()
+                        
+                    }else
+                    {
+                        estype = element.type_line.split("—")[1]?.trim()
+                    }
+
+                    pstype = props.card.type_line.split("—")[1]?.trim()
 
                     vals[4] = [compareStringProperties(estype, pstype), estype ? estype : "No Subtype"]
                     
