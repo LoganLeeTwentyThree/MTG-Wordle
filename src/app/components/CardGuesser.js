@@ -199,7 +199,16 @@ export default function CardGuesser(props) {
                             return <i className={"ms ms-c"}></i>
                         }
                         let result = arr.map((element, index) => {
-                            return <i key={index} className={"ms ms-" + element.toLowerCase()}></i>
+                            let symbol 
+                            if(element.includes("/"))
+                            {
+                                //hybrid
+                                symbol = element.split("/")[0].toLowerCase() + element.split("/")[1].toLowerCase() + " ms-split"
+                            }else 
+                            {
+                                symbol = element.toLowerCase()
+                            }
+                            return <i key={index} className={"ms ms-cost ms-" + symbol}></i>
                         });
 
                         
@@ -208,7 +217,7 @@ export default function CardGuesser(props) {
 
                     function getManaSymbolsFromString(input)
                     {
-                        return getManaSymbolsFromArr(input.replace(/}/g, "").split("{"))
+                        return getManaSymbolsFromArr(input.replace(/}/g, "").split("{").slice(1))
                     }
 
 
@@ -237,7 +246,7 @@ export default function CardGuesser(props) {
                     if (element.type_line.includes("//"))
                     {
                         //mdfcs
-                        estype = element.type_line.split("//")[0]?.split("—")[1].trim()
+                        estype = element.type_line.split("//")[0]?.split("—")[1]?.trim()
                         
                     }else
                     {
