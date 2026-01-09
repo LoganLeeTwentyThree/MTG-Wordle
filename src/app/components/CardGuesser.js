@@ -196,7 +196,7 @@ export default function CardGuesser(props) {
                     {
 
                         if (arr.length == 0) {
-                            return <i className={"ms ms-c"}></i>
+                            return "No Mana Cost"
                         }
                         let result = arr.map((element, index) => {
                             let symbol 
